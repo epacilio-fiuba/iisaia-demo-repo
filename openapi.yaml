@@ -153,6 +153,46 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
+  /import/{resource}:
+    post:
+      tags:
+      - import
+      summary: Import Csv
+      operationId: import_csv_import__resource__post
+      parameters:
+      - name: resource
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Resource
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Body_import_csv_import__resource__post'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImportResult'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
   /:
     get:
       summary: Root
@@ -165,6 +205,20 @@ paths:
               schema: {}
 components:
   schemas:
+    Body_import_csv_import__resource__post:
+      properties:
+        file:
+          type: string
+          contentMediaType: application/octet-stream
+          title: File
+        mode:
+          type: string
+          title: Mode
+          default: atomic
+      type: object
+      required:
+      - file
+      title: Body_import_csv_import__resource__post
     HTTPValidationError:
       properties:
         detail:
@@ -174,6 +228,81 @@ components:
           title: Detail
       type: object
       title: HTTPValidationError
+    ImportInserted:
+      properties:
+        row:
+          type: integer
+          title: Row
+        id:
+          type: integer
+          title: Id
+      type: object
+      required:
+      - row
+      - id
+      title: ImportInserted
+    ImportResult:
+      properties:
+        resource:
+          type: string
+          enum:
+          - users
+          - posts
+          title: Resource
+        mode:
+          type: string
+          enum:
+          - atomic
+          - partial
+          title: Mode
+        total_rows:
+          type: integer
+          title: Total Rows
+        inserted:
+          items:
+            $ref: '#/components/schemas/ImportInserted'
+          type: array
+          title: Inserted
+        skipped:
+          items:
+            $ref: '#/components/schemas/ImportRowError'
+          type: array
+          title: Skipped
+        rolled_back:
+          type: boolean
+          title: Rolled Back
+      type: object
+      required:
+      - resource
+      - mode
+      - total_rows
+      - inserted
+      - skipped
+      - rolled_back
+      title: ImportResult
+    ImportRowError:
+      properties:
+        row:
+          type: integer
+          title: Row
+        reason:
+          type: string
+          enum:
+          - missing_field
+          - invalid_field
+          - duplicate_in_csv
+          - duplicate_in_store
+          - author_not_found
+          title: Reason
+        detail:
+          type: string
+          title: Detail
+      type: object
+      required:
+      - row
+      - reason
+      - detail
+      title: ImportRowError
     Post:
       properties:
         title:

@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from backend.routers import users, posts
+from backend.routers import users, posts, imports
 
 app = FastAPI(title="demo-repo API", version="0.1.0")
 
@@ -13,6 +13,7 @@ app.add_middleware(
 
 app.include_router(users.router)
 app.include_router(posts.router)
+app.include_router(imports.router)
 
 
 @app.get("/")
