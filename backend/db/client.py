@@ -56,5 +56,23 @@ class InMemoryStore:
     ) -> Optional[int]:
         return self._posts_by_key.get((title, author_id, body))
 
+    def snapshot(self) -> dict:
+        return {
+            "users": dict(self.users),
+            "posts": dict(self.posts),
+            "user_seq": self._user_seq,
+            "post_seq": self._post_seq,
+            "users_by_email": dict(self._users_by_email),
+            "posts_by_key": dict(self._posts_by_key),
+        }
+
+    def restore(self, snap: dict) -> None:
+        self.users = snap["users"]
+        self.posts = snap["posts"]
+        self._user_seq = snap["user_seq"]
+        self._post_seq = snap["post_seq"]
+        self._users_by_email = snap["users_by_email"]
+        self._posts_by_key = snap["posts_by_key"]
+
 
 store = InMemoryStore()
