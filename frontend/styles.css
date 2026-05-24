@@ -4,3 +4,15 @@ form { display: grid; gap: .5rem; margin-top: 1rem; }
 input, textarea, button { padding: .5rem; font-size: 1rem; }
 ul { list-style: none; padding: 0; }
 li { padding: .25rem 0; border-bottom: 1px solid #eee; }
+
+fieldset { padding: .5rem 1rem; border: 1px solid #ddd; border-radius: 4px; }
+fieldset label { display: block; padding: .25rem 0; }
+
+.import-table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; }
+.import-table th, .import-table td { padding: .5rem; border-bottom: 1px solid #eee; text-align: left; }
+.import-table th { background: #f6f6f6; }
+
+.banner-error { padding: .75rem 1rem; margin-bottom: 1rem; background: #fde8e8; color: #7a1f1f; border-radius: 4px; }
+.banner-warn  { padding: .75rem 1rem; margin-bottom: 1rem; background: #fff4d6; color: #6a5200; border-radius: 4px; }
+
+footer { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #eee; color: #666; font-size: .9rem; }
