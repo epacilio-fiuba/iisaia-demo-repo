@@ -15,6 +15,8 @@ def reset_store():
     store.posts.clear()
     store._user_seq = 0
     store._post_seq = 0
+    store._users_by_email.clear()
+    store._posts_by_key.clear()
     yield
 
 
