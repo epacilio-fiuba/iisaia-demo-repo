@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>demo-repo · Admin</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main>
+    <h1>Admin · Import CSV</h1>
+    <p><a href="index.html">Volver al inicio</a></p>
+
+    <section>
+      <form id="import-form">
+        <label>
+          Bearer token
+          <input id="token" type="password" placeholder="Pegá el token" autocomplete="off">
+        </label>
+
+        <fieldset>
+          <legend>Recurso</legend>
+          <label><input type="radio" name="resource" value="users" checked> Users</label>
+          <label><input type="radio" name="resource" value="posts"> Posts</label>
+        </fieldset>
+
+        <label>
+          Archivo CSV
+          <input id="file" type="file" accept=".csv" required>
+        </label>
+
+        <fieldset>
+          <legend>Modo</legend>
+          <label><input type="radio" name="mode" value="atomic" checked> Atomic · si una fila falla, no se inserta nada</label>
+          <label><input type="radio" name="mode" value="partial"> Partial · inserta las válidas y reporta el resto</label>
+        </fieldset>
+
+        <button type="submit" id="submit-btn">Importar</button>
+      </form>
+    </section>
+
+    <section id="result" hidden>
+      <h2>Resultado</h2>
+      <div id="banner" hidden></div>
+      <p id="summary"></p>
+
+      <h3>Insertadas</h3>
+      <table class="import-table">
+        <thead><tr><th>Row</th><th>ID</th></tr></thead>
+        <tbody id="inserted-body"></tbody>
+      </table>
+
+      <h3>Descartadas</h3>
+      <table class="import-table">
+        <thead><tr><th>Row</th><th>Motivo</th><th>Detalle</th></tr></thead>
+        <tbody id="skipped-body"></tbody>
+      </table>
+    </section>
+  </main>
+  <script src="admin.js"></script>
+</body>
+</html>
