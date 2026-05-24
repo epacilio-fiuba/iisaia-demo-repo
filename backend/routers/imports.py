@@ -20,6 +20,7 @@ _ADAPTERS = {"users": UserAdapter, "posts": PostAdapter}
 @router.post(
     "/{resource}",
     response_model=ImportResult,
+    status_code=200,
     dependencies=[Depends(require_bearer)],
 )
 async def import_csv(

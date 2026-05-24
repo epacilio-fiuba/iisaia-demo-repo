@@ -30,7 +30,9 @@ form.addEventListener("submit", async (e) => {
 
   if (!token) return showError("Falta el bearer token.");
   if (!file) return showError("Elegí un archivo CSV.");
-  if (!file.name.toLowerCase().endsWith(".csv")) return showError("El archivo debe terminar en .csv.");
+  if (!file.name.toLowerCase().endsWith(".csv")) {
+    return showError("El archivo debe terminar en .csv.");
+  }
   if (file.size > MAX_BYTES) return showError("El archivo supera 1 MB.");
 
   const data = new FormData();

@@ -104,6 +104,27 @@ class PostAdapter:
 _ADAPTERS = {"users": UserAdapter, "posts": PostAdapter}
 
 
+def _validate_and_check_author(
+    adapter,
+    row_n: int,
+    raw: dict[str, str],
+    store: InMemoryStore,
+    resource: str,
+):
+    """Validate one row and check author existence for posts.
+    Returns the parsed model or an ImportRowError."""
+    parsed = adapter.validate_row(row_n, raw)
+    if isinstance(parsed, ImportRowError):
+        return parsed
+    if resource == "posts" and parsed.author_id not in store.users:
+        return ImportRowError(
+            row=row_n,
+            reason="author_not_found",
+            detail=f"author_id {parsed.author_id} does not exist",
+        )
+    return parsed
+
+
 def run_import(
     resource: Literal["users", "posts"],
     rows: list[dict[str, str]],
@@ -112,61 +133,38 @@ def run_import(
 ) -> ImportResult:
     adapter = _ADAPTERS[resource]
     snap = store.snapshot()
-
     inserted: list[ImportInserted] = []
     skipped: list[ImportRowError] = []
     seen_keys: set = set()
-
     for idx, raw in enumerate(rows):
-        row_n = idx + 2  # header is line 1, first data row is line 2
-
-        parsed = adapter.validate_row(row_n, raw)
+        row_n = idx + 2
+        parsed = _validate_and_check_author(adapter, row_n, raw, store, resource)
         if isinstance(parsed, ImportRowError):
             skipped.append(parsed)
             continue
-
-        if resource == "posts" and parsed.author_id not in store.users:
-            skipped.append(
-                ImportRowError(
-                    row=row_n,
-                    reason="author_not_found",
-                    detail=f"author_id {parsed.author_id} does not exist",
-                )
-            )
-            continue
-
         key = adapter.dup_key(parsed)
         if key in seen_keys:
-            skipped.append(
-                ImportRowError(
-                    row=row_n,
-                    reason="duplicate_in_csv",
-                    detail=f"duplicate of an earlier row in this file",
-                )
-            )
+            skipped.append(ImportRowError(
+                row=row_n,
+                reason="duplicate_in_csv",
+                detail="duplicate of an earlier row in this file",
+            ))
             continue
         seen_keys.add(key)
-
-        existing_id = adapter.find_in_store(store, parsed)
-        if existing_id is not None:
-            skipped.append(
-                ImportRowError(
-                    row=row_n,
-                    reason="duplicate_in_store",
-                    detail=f"{key} already exists",
-                )
-            )
+        if adapter.find_in_store(store, parsed) is not None:
+            skipped.append(ImportRowError(
+                row=row_n,
+                reason="duplicate_in_store",
+                detail=f"{key} already exists",
+            ))
             continue
-
         created = adapter.insert(store, parsed)
         inserted.append(ImportInserted(row=row_n, id=created.id))
-
     rolled_back = False
     if mode == "atomic" and skipped:
         store.restore(snap)
         inserted = []
         rolled_back = True
-
     return ImportResult(
         resource=resource,
         mode=mode,
