@@ -1,4 +1,4 @@
-const API = "http://localhost:8000";
+const API = "http://localhost:8001";
 const MAX_BYTES = 1_048_576;
 
 const $ = (id) => document.getElementById(id);
@@ -19,8 +19,7 @@ tokenInput.addEventListener("change", () => {
   sessionStorage.setItem("demo-bearer", tokenInput.value);
 });
 
-form.addEventListener("submit", async (e) => {
-  e.preventDefault();
+submitBtn.addEventListener("click", async () => {
   showError(null);
 
   const token = tokenInput.value.trim();
